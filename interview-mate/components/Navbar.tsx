@@ -8,7 +8,6 @@ import { Button } from "./ui/button";
 import { useMode } from "@/hooks/useMode";
 
 const Navbar = () => {
-	const { mode, setMode } = useMode();
 	return (
 		<nav className=" flex  justify-between  fixed z-50 w-full bg-white dark:bg-black border-b  px-6 py-4 lg:px-10">
 			<Link
@@ -26,19 +25,7 @@ const Navbar = () => {
 				</p>
 			</Link>
 			<div className="flex justify-between gap-5">
-				<div>
-					<Button
-						onClick={() => {
-							setMode((prevMode) =>
-								prevMode === "interviewer"
-									? "interviewee"
-									: "interviewer"
-							);
-						}}>
-						Switch to{" "}
-						{mode === "interviewee" ? "Interviwer" : "Interviwee"}
-					</Button>
-				</div>
+				<div></div>
 				<div>
 					<ModeToggle></ModeToggle>
 				</div>
