@@ -62,7 +62,7 @@ const MeetingSetup = ({
 	return (
 		<div className="flex h-screen w-full flex-col items-center justify-center gap-3">
 			<h1 className="text-center text-2xl font-bold">Setup</h1>
-			<div className="sm:w-3/5 text-center">
+			<div className="">
 				<VideoPreview />
 			</div>
 			<div className="flex h-16 items-center justify-center gap-3">
@@ -74,7 +74,7 @@ const MeetingSetup = ({
 					/>
 					Join with mic and camera off
 				</label>
-				<div className="text-black">
+				<div className="text-white">
 					<DeviceSettings />
 				</div>
 			</div>

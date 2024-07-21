@@ -20,6 +20,7 @@
     "@stream-io/video-react-sdk": "^1.2.15",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "lucide-react": "^0.412.0",
     "next": "14.2.5",
     "next-themes": "^0.3.0",
     "react": "^18",
@@ -30,6 +31,7 @@
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^18",
+    "@types/react-datepicker": "^7.0.0",
     "@types/react-dom": "^18",
     "eslint": "^8",
     "eslint-config-next": "14.2.5",

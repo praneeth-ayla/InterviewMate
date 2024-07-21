@@ -10,9 +10,10 @@ import { Call, useStreamVideoClient } from "@stream-io/video-react-sdk";
 import { useUser } from "@clerk/nextjs";
 import Loader from "./Loader";
 import { Textarea } from "./ui/textarea";
-// import ReactDatePicker from "react-datepicker";
+import ReactDatePicker from "react-datepicker";
 import { useToast } from "./ui/use-toast";
 import { Input } from "./ui/input";
+import { Button } from "./ui/button";
 
 const initialValues = {
 	dateTime: new Date(),
@@ -33,6 +34,9 @@ const MeetingTypeList = () => {
 	const client = useStreamVideoClient();
 	const { user } = useUser();
 	const { toast } = useToast();
+	let [mode, setMode] = useState<"interviewee" | "interviewer">(
+		"interviewee"
+	);
 
 	const createMeeting = async () => {
 		if (!client || !user) return;
@@ -74,36 +78,53 @@ const MeetingTypeList = () => {
 	const meetingLink = `${process.env.NEXT_PUBLIC_BASE_URL}/meeting/${callDetail?.id}`;
 
 	return (
-		<section className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
-			<HomeCard
-				img="/icons/add-meeting.svg"
-				title="New Meeting"
-				className="bg-orange-500"
-				description="Start an instant meeting"
-				handleClick={() => setMeetingState("isInstantMeeting")}
-			/>
-			<HomeCard
-				img="/icons/join-meeting.svg"
-				title="Join Meeting"
-				description="via invitation link"
-				className="bg-blue-500"
-				handleClick={() => setMeetingState("isJoiningMeeting")}
-			/>
-			<HomeCard
-				img="/icons/schedule.svg"
-				title="Schedule Meeting"
-				description="Plan your meeting"
-				className="bg-purple-500"
-				handleClick={() => setMeetingState("isScheduleMeeting")}
-			/>
-			<HomeCard
-				img="/icons/recordings.svg"
-				title="View Recordings"
-				description="Meeting Recordings"
-				className="bg-yellow-500"
-				handleClick={() => router.push("/recordings")}
-			/>
-
+		<div>
+			<Button
+				className="bg-green-900 text-white"
+				onClick={() => {
+					setMode((prevMode) =>
+						prevMode === "interviewer"
+							? "interviewee"
+							: "interviewer"
+					);
+				}}>
+				Switch to {mode === "interviewee" ? "Interviwer" : "Interviwee"}
+			</Button>
+			{mode === "interviewer" ? (
+				<section className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
+					<HomeCard
+						img="/icons/add-meeting.svg"
+						title="New Meeting"
+						className="bg-green-800"
+						description="Start an instant meeting"
+						handleClick={() => setMeetingState("isInstantMeeting")}
+					/>
+					<HomeCard
+						img="/icons/schedule.svg"
+						title="Schedule Meeting"
+						description="Plan your meeting"
+						className="bg-green-700"
+						handleClick={() => setMeetingState("isScheduleMeeting")}
+					/>
+					<HomeCard
+						img="/icons/recordings.svg"
+						title="View Recordings"
+						description="Meeting Recordings"
+						className="bg-green-800"
+						handleClick={() => router.push("/recordings")}
+					/>
+				</section>
+			) : (
+				<section className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
+					<HomeCard
+						img="/icons/join-meeting.svg"
+						title="Join Meeting"
+						description="via invitation link"
+						className="bg-green-800"
+						handleClick={() => setMeetingState("isJoiningMeeting")}
+					/>
+				</section>
+			)}
 			{!callDetail ? (
 				<MeetingModal
 					isOpen={meetingState === "isScheduleMeeting"}
@@ -128,7 +149,7 @@ const MeetingTypeList = () => {
 						<label className="text-base font-normal leading-[22.4px] text-sky-2">
 							Select Date and Time
 						</label>
-						{/* <ReactDatePicker
+						<ReactDatePicker
 							selected={values.dateTime}
 							onChange={(date) =>
 								setValues({ ...values, dateTime: date! })
@@ -139,7 +160,7 @@ const MeetingTypeList = () => {
 							timeCaption="time"
 							dateFormat="MMMM d, yyyy h:mm aa"
 							className="w-full rounded bg-dark-3 p-2 focus:outline-none"
-						/> */}
+						/>
 					</div>
 				</MeetingModal>
 			) : (
@@ -182,7 +203,7 @@ const MeetingTypeList = () => {
 				buttonText="Start Meeting"
 				handleClick={createMeeting}
 			/>
-		</section>
+		</div>
 	);
 };
 
