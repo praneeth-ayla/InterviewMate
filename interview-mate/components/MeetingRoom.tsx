@@ -22,6 +22,7 @@ import {
 import Loader from "./Loader";
 import EndCallButton from "./EndCallButton";
 import { cn } from "@/lib/utils";
+import useTranslator from "./Translator";
 
 type CallLayoutType = "grid" | "speaker-left" | "speaker-right";
 
@@ -32,6 +33,7 @@ const MeetingRoom = () => {
 	const [layout, setLayout] = useState<CallLayoutType>("speaker-left");
 	const [showParticipants, setShowParticipants] = useState(false);
 	const { useCallCallingState } = useCallStateHooks();
+	const { text } = useTranslator();
 
 	// for more detail about types of CallingState see: https://getstream.io/video/docs/react/ui-cookbook/ringing-call/#incoming-call-panel
 	const callingState = useCallCallingState();
@@ -67,7 +69,7 @@ const MeetingRoom = () => {
 			{/* video layout and call controls */}
 			<div className="fixed bottom-0 flex w-full items-center justify-center gap-5">
 				<CallControls onLeave={() => router.push(`/`)} />
-
+				message is:{text}
 				<DropdownMenu>
 					<div className="flex items-center">
 						<DropdownMenuTrigger className="cursor-pointer rounded-2xl bg-black  px-4 py-2 hover:bg-[#4c535b]  ">
