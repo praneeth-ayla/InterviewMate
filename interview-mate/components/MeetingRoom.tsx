@@ -36,7 +36,6 @@ const MeetingRoom = () => {
 	const [showParticipants, setShowParticipants] = useState(false);
 	const { useCallCallingState, useMicrophoneState } = useCallStateHooks();
 	const { isMute } = useMicrophoneState();
-	const { sendWS } = useSendSpeech();
 
 	const role = isMeetingOwner ? "interviewer" : "inteviewee";
 
