@@ -52,15 +52,13 @@ const MeetingRoom = () => {
 
 	useEffect(() => {
 		if (!isPersonalRoom && !isMute) {
-			const interval = setInterval(() => {
-				if (!isListening) {
-					startListening();
+			if (!isListening) {
+				startListening();
+				if (text !== "") {
 					console.log({ text, role });
-					// sendWS({ text, role });
 				}
-			}, 1000);
-
-			return () => clearInterval(interval);
+				// sendWS({ text, role });
+			}
 		}
 	}, [isPersonalRoom, isMute, isListening, startListening, text]);
 

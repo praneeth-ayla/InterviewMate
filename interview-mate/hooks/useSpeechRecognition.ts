@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallStateHooks } from "@stream-io/video-react-sdk";
 import { useEffect, useState } from "react";
 
 // Check for webkitSpeechRecognition support
@@ -26,7 +27,8 @@ async function getLocalAudioStream(): Promise<MediaStream | null> {
 export default function useSpeechRecognition() {
 	const [text, setText] = useState<string>("");
 	const [isListening, setIsListening] = useState<boolean>(false);
-
+	const { useMicrophoneState } = useCallStateHooks();
+	const { microphone } = useMicrophoneState();
 	useEffect(() => {
 		if (!recognition) return;
 
@@ -60,13 +62,24 @@ export default function useSpeechRecognition() {
 		recognition.start();
 
 		// Connect the audio stream to the recognition
-		recognition.onaudiostart = () => {
-			console.log("Audio capturing started");
-		};
+		if (!isListening) {
+			recognition.onaudiostart = () => {
+				console.log("Audio capturing started");
+			};
+		}
 
 		recognition.onaudioend = () => {
 			console.log("Audio capturing ended");
 			audioContext.close();
+			microphone.toggle();
+			if (isListening) {
+				microphone.toggle();
+				setTimeout(() => {
+					microphone.toggle();
+				}, 20);
+			} else {
+				microphone.toggle();
+			}
 		};
 	};
 
