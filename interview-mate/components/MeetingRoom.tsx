@@ -22,7 +22,7 @@ import {
 import Loader from "./Loader";
 import EndCallButton, { isMeetingOwner } from "./EndCallButton";
 import { cn } from "@/lib/utils";
-import useSpeechRecognition from "./SpeechToText";
+import useSpeechRecognition from "@/hooks/useSpeechRecognition";
 
 import { useSendSpeech } from "@/hooks/useSendSpeech";
 

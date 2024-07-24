@@ -7,6 +7,11 @@ export function useSendSpeech() {
 		setSocket(newSocket);
 	}, []);
 
+	socket?.on("receive-message", (message) => {
+		console.log("=====================");
+		console.log(message);
+		console.log("=====================");
+	});
 	function sendWS({ text, role }: { text: string; role: string }) {
 		if (text !== "") {
 			// send to websocket
