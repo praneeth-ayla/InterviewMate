@@ -4,8 +4,6 @@ import { SignedIn, UserButton } from "@clerk/nextjs";
 
 import MobileNav from "./MobileNav";
 import { ModeToggle } from "./mode-toggle";
-import { Button } from "./ui/button";
-import { useMode } from "@/hooks/useMode";
 
 const Navbar = () => {
 	return (

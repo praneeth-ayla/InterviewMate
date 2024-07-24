@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
 	CallControls,
 	CallParticipantsList,
@@ -20,9 +20,11 @@ import {
 	DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import Loader from "./Loader";
-import EndCallButton from "./EndCallButton";
+import EndCallButton, { isMeetingOwner } from "./EndCallButton";
 import { cn } from "@/lib/utils";
-import useTranslator from "./Translator";
+import useSpeechRecognition from "./SpeechToText";
+
+import { useSendSpeech } from "@/hooks/useSendSpeech";
 
 type CallLayoutType = "grid" | "speaker-left" | "speaker-right";
 
@@ -32,11 +34,47 @@ const MeetingRoom = () => {
 	const router = useRouter();
 	const [layout, setLayout] = useState<CallLayoutType>("speaker-left");
 	const [showParticipants, setShowParticipants] = useState(false);
-	const { useCallCallingState } = useCallStateHooks();
-	const { text } = useTranslator();
+	const { useCallCallingState, useMicrophoneState } = useCallStateHooks();
+	const { isMute } = useMicrophoneState();
+	const { sendWS } = useSendSpeech();
 
-	// for more detail about types of CallingState see: https://getstream.io/video/docs/react/ui-cookbook/ringing-call/#incoming-call-panel
+	const role = isMeetingOwner ? "interviewer" : "inteviewee";
+
 	const callingState = useCallCallingState();
+
+	const {
+		text,
+		startListening,
+		stopListening,
+		hasRecognitionSupport,
+		isListening,
+	} = useSpeechRecognition();
+
+	useEffect(() => {
+		if (!isPersonalRoom && !isMute) {
+			const interval = setInterval(() => {
+				if (!isListening) {
+					startListening();
+					sendWS({ text, role });
+				}
+			}, 1000);
+
+			return () => clearInterval(interval);
+		}
+	}, [isPersonalRoom, isMute, isListening, startListening, text]);
+
+	useEffect(() => {
+		if (!hasRecognitionSupport) {
+			console.warn(
+				"Speech recognition is not supported in this browser."
+			);
+		}
+		return () => {
+			if (isListening) {
+				stopListening();
+			}
+		};
+	}, [hasRecognitionSupport, isListening, stopListening]);
 
 	if (callingState !== CallingState.JOINED) return <Loader />;
 
@@ -52,9 +90,9 @@ const MeetingRoom = () => {
 	};
 
 	return (
-		<section className="relative h-screen w-full bg-black text-white overflow-hidden pt-4 ">
+		<section className="relative h-screen w-full bg-black text-white overflow-hidden pt-4">
 			<div className="relative flex size-full items-center justify-center">
-				<div className=" flex size-full max-w-[1000px] items-center text-white">
+				<div className="flex size-full max-w-[1000px] items-center text-white">
 					<CallLayout />
 				</div>
 				<div
@@ -69,10 +107,10 @@ const MeetingRoom = () => {
 			{/* video layout and call controls */}
 			<div className="fixed bottom-0 flex w-full items-center justify-center gap-5">
 				<CallControls onLeave={() => router.push(`/`)} />
-				message is:{text}
+				{/* <div>message is: {text}</div> */}
 				<DropdownMenu>
 					<div className="flex items-center">
-						<DropdownMenuTrigger className="cursor-pointer rounded-2xl bg-black  px-4 py-2 hover:bg-[#4c535b]  ">
+						<DropdownMenuTrigger className="cursor-pointer rounded-2xl bg-black px-4 py-2 hover:bg-[#4c535b]">
 							<LayoutList
 								size={20}
 								className="text-white"
@@ -99,7 +137,7 @@ const MeetingRoom = () => {
 				</DropdownMenu>
 				<CallStatsButton />
 				<button onClick={() => setShowParticipants((prev) => !prev)}>
-					<div className=" cursor-pointer rounded-2xl bg-[#19232d] px-4 py-2 hover:bg-[#4c535b]  ">
+					<div className="cursor-pointer rounded-2xl bg-[#19232d] px-4 py-2 hover:bg-[#4c535b]">
 						<Users
 							size={20}
 							className="text-white"
