@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 
 // Check for webkitSpeechRecognition support
 let recognition: SpeechRecognition;
@@ -35,17 +35,13 @@ export default function useSpeechRecognition() {
 				.map((result) => result[0].transcript)
 				.join("");
 			setText(transcript);
-		};
+			recognition.stop();
 
-		recognition.onend = () => {
-			// Automatically restart recognition if it stops
-			if (isListening) {
-				recognition.start();
-			}
+			setIsListening(false);
 		};
-	}, [isListening]);
+	}, []);
 
-	const startListening = useCallback(async () => {
+	const startListening = async () => {
 		setText("");
 		setIsListening(true);
 
@@ -63,6 +59,7 @@ export default function useSpeechRecognition() {
 		const newStream = destination.stream;
 		recognition.start();
 
+		// Connect the audio stream to the recognition
 		recognition.onaudiostart = () => {
 			console.log("Audio capturing started");
 		};
@@ -71,12 +68,12 @@ export default function useSpeechRecognition() {
 			console.log("Audio capturing ended");
 			audioContext.close();
 		};
-	}, []);
+	};
 
-	const stopListening = useCallback(() => {
+	const stopListening = () => {
 		setIsListening(false);
 		recognition.stop();
-	}, []);
+	};
 
 	return {
 		text,
