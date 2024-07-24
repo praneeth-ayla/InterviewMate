@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+// Check for webkitSpeechRecognition support
 let recognition: SpeechRecognition;
 if (typeof window !== "undefined" && "webkitSpeechRecognition" in window) {
 	recognition = new (window as any).webkitSpeechRecognition();
@@ -9,6 +10,7 @@ if (typeof window !== "undefined" && "webkitSpeechRecognition" in window) {
 	recognition.lang = "en-US";
 }
 
+// Function to get the local audio stream
 async function getLocalAudioStream(): Promise<MediaStream | null> {
 	try {
 		const stream = await navigator.mediaDevices.getUserMedia({
@@ -46,19 +48,26 @@ export default function useSpeechRecognition() {
 		const stream = await getLocalAudioStream();
 		if (!stream) return;
 
-		// Connect the audio stream to the recognition
+		// Create an audio context and media stream source
 		const audioContext = new AudioContext();
 		const source = audioContext.createMediaStreamSource(stream);
-		const processor = audioContext.createScriptProcessor(2048, 1, 1);
 
-		source.connect(processor);
-		processor.connect(audioContext.destination);
+		// Connect the audio source to the speech recognition
+		const destination = audioContext.createMediaStreamDestination();
+		source.connect(destination);
 
-		processor.onaudioprocess = () => {
-			// Handle audio processing if needed
+		const newStream = destination.stream;
+		recognition.start();
+
+		// Connect the audio stream to the recognition
+		recognition.onaudiostart = () => {
+			console.log("Audio capturing started");
 		};
 
-		recognition.start();
+		recognition.onaudioend = () => {
+			console.log("Audio capturing ended");
+			audioContext.close();
+		};
 	};
 
 	const stopListening = () => {

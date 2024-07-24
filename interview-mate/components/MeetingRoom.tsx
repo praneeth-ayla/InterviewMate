@@ -55,7 +55,8 @@ const MeetingRoom = () => {
 			const interval = setInterval(() => {
 				if (!isListening) {
 					startListening();
-					sendWS({ text, role });
+					console.log({ text, role });
+					// sendWS({ text, role });
 				}
 			}, 1000);
 
