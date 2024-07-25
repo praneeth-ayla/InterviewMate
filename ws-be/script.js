@@ -94,7 +94,9 @@ io.on("connection", (socket) => {
                     conversation: true
                 }
             });
-
+            console.log('=================convo====================')
+            console.log(convo)
+            console.log('=================convo====================')
         } catch (error) {
             console.log("Error:", error.message)
         }
@@ -103,12 +105,24 @@ io.on("connection", (socket) => {
 
 
 
-    socket.on('need-questions', (message) => {
-        socket.to(room).emit('chat-questions', message)
-    })
-
-    socket.on('questions', (questions) => {
-        socket.to(room).emit('questions-ret', questions)
+    socket.on('need-questions', async (meetingRoomId) => {
+        try {
+            const conversation = await prisma.meetingRoom.findFirst({
+                where: {
+                    meetingId: meetingRoomId
+                }, include: {
+                    conversation: true
+                }
+            })
+            const questions = conversation
+            console.log('""""""""""""""""""""""""""""""""""""')
+            console.log(questions)
+            console.log('""""""""""""""""""""""""""""""""""""')
+            socket.emit("questions", questions)
+            socket.to(meetingRoomId).emit('questions', questions)
+        } catch (error) {
+            console.log(error)
+        }
     })
 
 
