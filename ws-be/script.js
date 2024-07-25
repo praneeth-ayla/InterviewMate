@@ -3,6 +3,9 @@ const { Server } = require("socket.io")
 const { createServer } = require("http")
 const cors = require("cors");
 const { default: axios } = require("axios");
+const { PrismaClient } = require("@prisma/client")
+
+const prisma = new PrismaClient()
 
 const port = 8000;
 
@@ -38,7 +41,6 @@ app.post("/", (req, res) => {
     })
 
 })
-let count = 0
 
 async function test(body) {
     const data = await axios.post("http://localhost:8000/", { body })
@@ -56,8 +58,17 @@ io.on("connection", (socket) => {
         test({ room, text, role }).then((data) => {
             console.log(data.data)
         })
-        count += 1
 
+
+        const user = prisma.user.create({
+            data: {
+                name: text
+            }
+        }).then((res) => {
+            console.log("=======================================")
+            console.log(res)
+            console.log("=======================================")
+        })
     });
 
 
