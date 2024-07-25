@@ -64,41 +64,40 @@ io.on("connection", (socket) => {
             })
 
             if (!existingMeetingRoom) {
-
                 const meetingRoom = await prisma.meetingRoom.create({
                     data: {
                         meetingId: roomId
 
                     }
                 })
-
-                console.log("=======================================")
-                console.log(meetingRoom)
-                console.log("=======================================")
-
             }
-
-
-            console.log(`User joined room ${roomId}`);
         } catch (error) {
             console.log(error)
         }
     });
 
     socket.on("message", async ({ meetingRoomId, text, role }) => {
-        // console.log({ room, text, role });
-        const convo = await prisma.meetingRoom.update({
-            where: {
-                meetingId: meetingRoomId
-            },
-            data: {
-                conversation: {
-                    create: { role, text }
+        try {
+            const convo = await prisma.meetingRoom.update({
+                where: {
+                    meetingId: meetingRoomId
+                },
+                data: {
+                    conversation: {
+                        create: {
+                            role,
+                            text
+                        }
+                    }
+                },
+                include: {
+                    conversation: true
                 }
-            }
-        })
-        console.log(convo)
+            });
 
+        } catch (error) {
+            console.log("Error:", error.message)
+        }
 
     });
 
@@ -113,6 +112,22 @@ io.on("connection", (socket) => {
     })
 
 
+    async function getAll(meetingId) {
+        try {
+            const res = await prisma.meetingRoom.findFirst({
+                where: {
+                    meetingId
+                }, include: {
+                    conversation: true
+                }
+
+            })
+            return res
+        } catch (error) {
+
+            console.log(error)
+        }
+    }
 
 
 
@@ -124,62 +139,6 @@ io.on("connection", (socket) => {
     });
 });
 
-async function test() {
-
-    const meetingRoomId = "your-meeting-room-id";
-    try {
-        const existingMeetingRoom = await prisma.meetingRoom.findFirst({
-            where: {
-                meetingId: meetingRoomId
-            }
-        })
-
-        if (!existingMeetingRoom) {
-
-            const meetingRoom = await prisma.meetingRoom.create({
-                data: {
-                    meetingId: meetingRoomId
-
-                }
-            })
-
-            console.log("=======================================")
-            console.log(meetingRoom)
-            console.log("=======================================")
-
-        }
-
-
-        console.log(`User joined room ${meetingRoomId}`);
-    } catch (error) {
-        console.log(error)
-    }
-    const role = "your-role";
-    const text = "your-text";
-
-    const convo = await prisma.meetingRoom.update({
-        where: {
-            meetingId: meetingRoomId
-        },
-        data: {
-            conversation: {
-                create: {
-                    role,
-                    text
-                }
-            }
-        },
-        include: {
-            conversation: true // Include the updated conversation in the response
-        }
-    });
-
-    console.log(convo);
-
-
-}
-
-test()
 
 server.listen(port, () => {
     console.log(`Server is running on port ${port}`);
