@@ -5,10 +5,8 @@ export function useSendSpeech() {
 	const [questions, setQuestions] = useState<any[]>([]);
 
 	useEffect(() => {
-		const socket_url = process.env.WS_URL;
-		// const newSocket = io("https://interviewmate-atie.onrender.com/");
+		const newSocket = io("https://interviewmate-atie.onrender.com/");
 		// const newSocket = io("http://localhost:8000");
-		const newSocket = io(socket_url || "http://localhost:8000");
 		setSocket(newSocket);
 	}, []);
 
