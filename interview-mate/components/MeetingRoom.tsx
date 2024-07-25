@@ -22,7 +22,7 @@ import {
 import Loader from "./Loader";
 import EndCallButton, { isMeetingOwner } from "./EndCallButton";
 import { cn } from "@/lib/utils";
-import useSpeechRecognition from "./SpeechToText";
+import useSpeechRecognition from "@/hooks/useSpeechRecognition";
 
 import { useSendSpeech } from "@/hooks/useSendSpeech";
 
@@ -52,14 +52,13 @@ const MeetingRoom = () => {
 
 	useEffect(() => {
 		if (!isPersonalRoom && !isMute) {
-			const interval = setInterval(() => {
-				if (!isListening) {
-					startListening();
+			if (!isListening) {
+				startListening();
+				if (text !== "") {
 					sendWS({ text, role });
+					console.log({ text, role });
 				}
-			}, 1000);
-
-			return () => clearInterval(interval);
+			}
 		}
 	}, [isPersonalRoom, isMute, isListening, startListening, text]);
 
