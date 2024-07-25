@@ -53,22 +53,53 @@ async function test(body) {
 io.on("connection", (socket) => {
     console.log("User Connected", socket.id);
 
-    socket.on("message", ({ room, text, role }) => {
-        // console.log({ room, text, role });
-        test({ room, text, role }).then((data) => {
-            console.log(data.data)
-        })
+    // room join using the meeting id
+    socket.on("join-room", async (roomId) => {
+        socket.join(roomId);
+        try {
+            const existingMeetingRoom = await prisma.meetingRoom.findFirst({
+                where: {
+                    meetingId: roomId
+                }
+            })
 
+            if (!existingMeetingRoom) {
 
-        const user = prisma.user.create({
-            data: {
-                name: text
+                const meetingRoom = await prisma.meetingRoom.create({
+                    data: {
+                        meetingId: roomId
+
+                    }
+                })
+
+                console.log("=======================================")
+                console.log(meetingRoom)
+                console.log("=======================================")
+
             }
-        }).then((res) => {
-            console.log("=======================================")
-            console.log(res)
-            console.log("=======================================")
+
+
+            console.log(`User joined room ${roomId}`);
+        } catch (error) {
+            console.log(error)
+        }
+    });
+
+    socket.on("message", async ({ meetingRoomId, text, role }) => {
+        // console.log({ room, text, role });
+        const convo = await prisma.meetingRoom.update({
+            where: {
+                meetingId: meetingRoomId
+            },
+            data: {
+                conversation: {
+                    create: { role, text }
+                }
+            }
         })
+        console.log(convo)
+
+
     });
 
 
@@ -87,16 +118,70 @@ io.on("connection", (socket) => {
 
 
 
-    socket.on("join-room", (room) => {
-        socket.join(room);
-        console.log(`User joined room ${room}`);
-    });
 
     socket.on("disconnect", () => {
         console.log("User Disconnected", socket.id);
     });
 });
 
+async function test() {
+
+    const meetingRoomId = "your-meeting-room-id";
+    try {
+        const existingMeetingRoom = await prisma.meetingRoom.findFirst({
+            where: {
+                meetingId: meetingRoomId
+            }
+        })
+
+        if (!existingMeetingRoom) {
+
+            const meetingRoom = await prisma.meetingRoom.create({
+                data: {
+                    meetingId: meetingRoomId
+
+                }
+            })
+
+            console.log("=======================================")
+            console.log(meetingRoom)
+            console.log("=======================================")
+
+        }
+
+
+        console.log(`User joined room ${meetingRoomId}`);
+    } catch (error) {
+        console.log(error)
+    }
+    const role = "your-role";
+    const text = "your-text";
+
+    const convo = await prisma.meetingRoom.update({
+        where: {
+            meetingId: meetingRoomId
+        },
+        data: {
+            conversation: {
+                create: {
+                    role,
+                    text
+                }
+            }
+        },
+        include: {
+            conversation: true // Include the updated conversation in the response
+        }
+    });
+
+    console.log(convo);
+
+
+}
+
+test()
+
 server.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
+
