@@ -109,42 +109,52 @@ io.on("connection", (socket) => {
         try {
             const conversation = await prisma.meetingRoom.findFirst({
                 where: {
-                    meetingId: meetingRoomId
-                }, include: {
-                    conversation: true
-                }
-            })
-            const questions = conversation
-            console.log('""""""""""""""""""""""""""""""""""""')
-            console.log(questions)
-            console.log('""""""""""""""""""""""""""""""""""""')
-            socket.emit("questions", questions)
-            socket.to(meetingRoomId).emit('questions', questions)
+                    meetingId: meetingRoomId,
+                },
+                include: {
+                    conversation: {
+                        select: {
+                            text: true,
+                            role: true,
+                        },
+                    },
+                },
+            });
+
+            const response = await axios.post("https://interviewmate.azurewebsites.net/new-questions", {
+                conversations: conversation.conversation
+            });
+
+            const questions = response.data;
+
+            socket.emit('questions', questions);
         } catch (error) {
             console.log(error)
         }
     })
 
 
-    async function getAll(meetingId) {
+    socket.on('need-questions-empty', async (meetingRoomId) => {
         try {
-            const res = await prisma.meetingRoom.findFirst({
+            const description = await prisma.meetingRoom.findFirst({
                 where: {
-                    meetingId
-                }, include: {
-                    conversation: true
+                    meetingId: meetingRoomId,
+                }, select: {
+                    description: true
                 }
+            });
 
-            })
-            return res
+            const response = await axios.post("https://interviewmate.azurewebsites.net/take-description", {
+                description
+            });
+
+            const questions = response.data;
+
+            socket.emit('questions', questions);
         } catch (error) {
-
             console.log(error)
         }
-    }
-
-
-
+    })
 
 
 
