@@ -3,24 +3,45 @@ import { io, Socket } from "socket.io-client";
 export function useSendSpeech() {
 	const [socket, setSocket] = useState<Socket | null>(null);
 	useEffect(() => {
-		const newSocket = io(process.env.WS_URL || "http://localhost:8000");
+		const url = process.env.WS_URL;
+		const newSocket = io("https://interviewmate-atie.onrender.com/");
 		setSocket(newSocket);
 	}, []);
 
-	socket?.on("receive-message", (message) => {
-		console.log("=====================");
-		console.log(message);
-		console.log("=====================");
-	});
-	function sendWS({ text, role }: { text: string; role: string }) {
+	function joinRoom(id: string) {
+		// send to websocket
+		console.log(id, "id");
+		if (socket) {
+			socket.emit("join-room", id);
+		}
+	}
+
+	function sendWS({
+		text,
+		role,
+		meetingRoomId,
+	}: {
+		text: string;
+		role: string;
+		meetingRoomId: string;
+	}) {
 		if (text !== "") {
 			// send to websocket
 			console.log("data:", { text, role });
 			if (socket) {
-				socket.emit("message", { text, role });
+				socket.emit("message", { text, role, meetingRoomId });
 			}
 		}
 	}
 
-	return { sendWS };
+	function needQuestions(meetingRoomId: string) {
+		socket?.on("questions", (questions) => {
+			console.log("=====================");
+			console.log("questions", questions);
+			console.log("=====================");
+		});
+
+		socket?.emit("need-questions", meetingRoomId);
+	}
+	return { sendWS, joinRoom, needQuestions };
 }

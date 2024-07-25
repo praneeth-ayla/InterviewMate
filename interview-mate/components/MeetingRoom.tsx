@@ -9,7 +9,7 @@ import {
 	SpeakerLayout,
 	useCallStateHooks,
 } from "@stream-io/video-react-sdk";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Users, LayoutList } from "lucide-react";
 
 import {
@@ -36,7 +36,8 @@ const MeetingRoom = () => {
 	const [showParticipants, setShowParticipants] = useState(false);
 	const { useCallCallingState, useMicrophoneState } = useCallStateHooks();
 	const { isMute } = useMicrophoneState();
-	const { sendWS } = useSendSpeech();
+	const { sendWS, needQuestions } = useSendSpeech();
+	const meetingRoomId = usePathname();
 
 	const role = isMeetingOwner ? "interviewer" : "inteviewee";
 
@@ -55,7 +56,7 @@ const MeetingRoom = () => {
 			if (!isListening) {
 				startListening();
 				if (text !== "") {
-					sendWS({ text, role });
+					sendWS({ text, role, meetingRoomId });
 					console.log({ text, role });
 				}
 			}
@@ -91,6 +92,12 @@ const MeetingRoom = () => {
 	return (
 		<section className="relative h-screen w-full bg-black text-white overflow-hidden pt-4">
 			<div className="relative flex size-full items-center justify-center">
+				<div
+					onClick={() => {
+						needQuestions(meetingRoomId);
+					}}>
+					questions
+				</div>
 				<div className="flex size-full max-w-[1000px] items-center text-white">
 					<CallLayout />
 				</div>

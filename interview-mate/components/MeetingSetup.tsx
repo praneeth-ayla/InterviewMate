@@ -9,6 +9,8 @@ import {
 
 import Alert from "./Alert";
 import { Button } from "./ui/button";
+import { useSendSpeech } from "@/hooks/useSendSpeech";
+import { usePathname } from "next/navigation";
 
 const MeetingSetup = ({
 	setIsSetupComplete,
@@ -22,8 +24,12 @@ const MeetingSetup = ({
 	const callTimeNotArrived =
 		callStartsAt && new Date(callStartsAt) > new Date();
 	const callHasEnded = !!callEndedAt;
+	const meetingId = usePathname();
+	console.log(meetingId);
 
 	const call = useCall();
+
+	const { joinRoom } = useSendSpeech();
 
 	if (!call) {
 		throw new Error(
@@ -82,7 +88,7 @@ const MeetingSetup = ({
 				className="rounded-md bg-green-500 px-4 py-2.5"
 				onClick={() => {
 					call.join();
-
+					joinRoom(meetingId);
 					setIsSetupComplete(true);
 				}}>
 				Join meeting
