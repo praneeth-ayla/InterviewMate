@@ -1,54 +1,76 @@
 "use client";
 
+import AnalysisCard from "@/components/AnalysisCard";
 import Loader from "@/components/Loader";
 import { useGetCalls } from "@/hooks/useGetCalls";
 import { useSendSpeech } from "@/hooks/useSendSpeech";
+import { useUser } from "@clerk/nextjs";
 import { Call, CallRecording } from "@stream-io/video-react-sdk";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+interface PartialDetialEl {
+	description: string;
+	meetingId: string;
+	id: number;
+	users: string;
+	dateAndTime: string; // ISO 8601 date-time string
+}
 
 export default function page() {
 	const { endedCalls, isLoading } = useGetCalls();
+	const router = useRouter();
 	const calls = endedCalls;
-	const { needAnalysis, joinRoom } = useSendSpeech();
+	const [partialDetails, setPartialDetails] = useState<PartialDetialEl[]>();
+
+	// Get User Details
+	const { user } = useUser();
+	function getUserMail() {
+		if (user?.emailAddresses[0].emailAddress) {
+			return user?.emailAddresses[0].emailAddress;
+		}
+	}
+
+	async function getPartialDetails() {
+		const userMail = getUserMail();
+
+		try {
+			const response = await fetch("http://localhost:8000/partialD", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ email: userMail }),
+			});
+
+			if (!response.ok) {
+				throw new Error(`HTTP error! status: ${response.status}`);
+			}
+
+			const data = await response.json();
+
+			setPartialDetails(data.partialDetails);
+		} catch (error) {
+			console.error("Fetch error:", error);
+		}
+	}
+
+	useEffect(() => {
+		getPartialDetails();
+	}, []);
 
 	return (
-		<div>
-			test
-			<div>
-				{isLoading ? (
-					<Loader />
-				) : (
-					<>
-						{calls && calls.length > 0 ? (
-							<div>
-								{calls.map(
-									(
-										meeting: Call | CallRecording,
-										index: number
-									) => (
-										<div key={index}>
-											{(meeting as Call).id}
-										</div>
-									)
-								)}
-							</div>
-						) : (
-							<></>
-						)}
-					</>
-				)}
-			</div>
-			<button
-				onClick={() => {
-					const data = needAnalysis(
-						"/meeting/c878253c-8584-4557-82e7-3b4619773db7"
-					).then((mess) => {
-						console.log("''''''''''''''''''''''''");
-						console.log(mess);
-						console.log("''''''''''''''''''''''''");
-					});
-				}}>
-				get data
-			</button>
-		</div>
+		<section className="flex size-full flex-col gap-10">
+			<h1 className="text-3xl font-bold">Meeting Analytics</h1>
+			{isLoading ? (
+				<Loader />
+			) : (
+				<div className="grid gap-16 md:grid-cols-2 lg:grid-cols-3 ">
+					{partialDetails?.map((meeting) => (
+						<AnalysisCard partialDetails={meeting}></AnalysisCard>
+					))}
+				</div>
+			)}
+		</section>
 	);
 }

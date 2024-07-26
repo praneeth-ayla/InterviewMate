@@ -27,4 +27,5 @@ model MeetingRoom {
   conversation Convo[]
   users        String       @default("")
   analysis     String       @default("")
+  dateAndTime  DateTime     @default(now())
 }

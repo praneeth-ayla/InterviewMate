@@ -33,14 +33,41 @@ app.get("/", (req, res) => {
     res.send("Hello World!");
 });
 
-app.post("/", (req, res) => {
-    const body = req.body
+app.post("/partialD", async (req, res) => {
+    // Get the body from the request
+    const body = req.body;
 
-    return res.json({
-        body
+    // Extract userMail from the body
+    const userMail = body.email; // Ensure this key matches the key used in your client-side code
+
+    if (!userMail) {
+        // Handle missing userMail
+        return res.status(400).json({
+            mess: "Email is required"
+        });
+    }
+
+    const partialDetails = await prisma.meetingRoom.findMany({
+        where: {
+            users: {
+                contains: userMail
+            },
+        }, select: {
+            description: true,
+            meetingId: true,
+            id: true,
+            users: true,
+            dateAndTime: true
+        }
     })
 
-})
+    // Respond with the userMail and a success message
+    return res.json({
+        partialDetails,
+        message: "success"
+    });
+});
+
 
 async function test(body) {
     const data = await axios.post("http://localhost:8000/", { body })
@@ -198,6 +225,7 @@ io.on("connection", (socket) => {
 
                 if (!conversation) {
                     socket.emit("error", "Conversation not found");
+                    console.log("error started")
                     return;
                 }
 
@@ -206,8 +234,9 @@ io.on("connection", (socket) => {
                         conversations: conversation.conversation
                     });
                     // Emit only the data part of the response
-                    socket.emit("analysis", res.data);
+
                     const analysis = JSON.stringify(res.data)
+                    console.log(analysis)
                     const updateMeeting = await prisma.meetingRoom.update({
                         where: {
                             meetingId: meetingRoomId
@@ -215,7 +244,11 @@ io.on("connection", (socket) => {
                             analysis
                         }
                     })
-                    console.log(analysis)
+
+                    console.log(updateMeeting)
+                    // console.log(analysis)
+                    socket.emit("analysis", updateMeeting);
+
 
                 } catch (error) {
                     console.error("Error in analysis request:", error);
@@ -223,7 +256,7 @@ io.on("connection", (socket) => {
                 }
 
             } else {
-                socket.emit("analysis", meetingRoom.analysis)
+                socket.emit("analysis", meetingRoom)
 
             }
         } catch (error) {
