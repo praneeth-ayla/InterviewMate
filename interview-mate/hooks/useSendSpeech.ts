@@ -3,6 +3,7 @@ import { io, Socket } from "socket.io-client";
 export function useSendSpeech() {
 	const [socket, setSocket] = useState<Socket | null>(null);
 	const [questions, setQuestions] = useState<any[]>([]);
+	const [analysis, setAnalysis] = useState<any[]>([]);
 
 	useEffect(() => {
 		const url = process.env.WS_URL;
@@ -11,11 +12,10 @@ export function useSendSpeech() {
 		setSocket(newSocket);
 	}, []);
 
-	function joinRoom(id: string) {
+	function joinRoom(id: string, userMail: string) {
 		// send to websocket
-		console.log(id, "id");
 		if (socket) {
-			socket.emit("join-room", id);
+			socket.emit("join-room", { id, userMail });
 		}
 	}
 
@@ -59,5 +59,16 @@ export function useSendSpeech() {
 		}
 	}
 
-	return { sendWS, joinRoom, needQuestions };
+	function needAnalysis(meetingRoomId: string) {
+		return new Promise<any[]>((resolve) => {
+			socket?.emit("need-analysis", meetingRoomId);
+
+			socket?.on("analysis", (analysis) => {
+				setAnalysis(analysis);
+				resolve(analysis);
+			});
+		});
+	}
+
+	return { sendWS, joinRoom, needQuestions, needAnalysis };
 }

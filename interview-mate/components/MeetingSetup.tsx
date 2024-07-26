@@ -11,6 +11,7 @@ import Alert from "./Alert";
 import { Button } from "./ui/button";
 import { useSendSpeech } from "@/hooks/useSendSpeech";
 import { usePathname } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 
 const MeetingSetup = ({
 	setIsSetupComplete,
@@ -27,6 +28,13 @@ const MeetingSetup = ({
 	const meetingId = usePathname();
 	console.log(meetingId);
 
+	const { user } = useUser();
+	function getUserMail() {
+		if (user?.emailAddresses[0].emailAddress) {
+			return user?.emailAddresses[0].emailAddress;
+		}
+		return "";
+	}
 	const call = useCall();
 
 	const { joinRoom } = useSendSpeech();
@@ -88,7 +96,7 @@ const MeetingSetup = ({
 				className="rounded-md bg-green-500 px-4 py-2.5"
 				onClick={() => {
 					call.join();
-					joinRoom(meetingId);
+					joinRoom(meetingId, getUserMail());
 					setIsSetupComplete(true);
 				}}>
 				Join meeting

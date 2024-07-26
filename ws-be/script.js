@@ -54,23 +54,37 @@ io.on("connection", (socket) => {
     console.log("User Connected", socket.id);
 
     // room join using the meeting id
-    socket.on("join-room", async (roomId) => {
-        socket.join(roomId);
+    socket.on("join-room", async ({ id, userMail }) => {
         try {
             const existingMeetingRoom = await prisma.meetingRoom.findFirst({
                 where: {
-                    meetingId: roomId
+                    meetingId: id
                 }
             })
 
             if (!existingMeetingRoom) {
                 const meetingRoom = await prisma.meetingRoom.create({
                     data: {
-                        meetingId: roomId
+                        meetingId: id,
+                        users: userMail
 
                     }
                 })
+            } else {
+                const usersUL = existingMeetingRoom.users + "," + userMail
+                const updateUser = await prisma.meetingRoom.update({
+                    where: {
+                        meetingId: id
+                    },
+                    data: {
+                        users: usersUL
+                    }
+                });
+                console.log("''''''''''''''''''")
+                console.log(updateUser)
+                console.log("''''''''''''''''''")
             }
+
         } catch (error) {
             console.log(error)
         }
@@ -155,6 +169,68 @@ io.on("connection", (socket) => {
             console.log(error)
         }
     })
+
+
+    socket.on("need-analysis", async (meetingRoomId) => {
+        try {
+            const meetingRoom = await prisma.meetingRoom.findFirst({
+                where: {
+                    meetingId: meetingRoomId,
+                }
+            })
+
+            if (meetingRoom.analysis === "") {
+
+                const conversation = await prisma.meetingRoom.findFirst({
+                    where: {
+                        meetingId: meetingRoomId
+                    },
+                    select: {
+                        description: true,
+                        conversation: {
+                            select: {
+                                text: true,
+                                role: true
+                            }
+                        }
+                    }
+                });
+
+                if (!conversation) {
+                    socket.emit("error", "Conversation not found");
+                    return;
+                }
+
+                try {
+                    const res = await axios.post("https://interviewmate.azurewebsites.net/analyze", {
+                        conversations: conversation.conversation
+                    });
+                    // Emit only the data part of the response
+                    socket.emit("analysis", res.data);
+                    const analysis = JSON.stringify(res.data)
+                    const updateMeeting = await prisma.meetingRoom.update({
+                        where: {
+                            meetingId: meetingRoomId
+                        }, data: {
+                            analysis
+                        }
+                    })
+                    console.log(analysis)
+
+                } catch (error) {
+                    console.error("Error in analysis request:", error);
+                    socket.emit("error", "Analysis request failed");
+                }
+
+            } else {
+                socket.emit("analysis", meetingRoom.analysis)
+
+            }
+        } catch (error) {
+            console.error("Error fetching conversation:", error);
+            socket.emit("error", "Failed to fetch conversation");
+        }
+    });
 
 
 

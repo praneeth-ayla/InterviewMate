@@ -25,4 +25,6 @@ model MeetingRoom {
   description  String       @default("an interview about full stack web development")
   meetingId    String       @unique
   conversation Convo[]
+  users        String       @default("")
+  analysis     String       @default("")
 }
