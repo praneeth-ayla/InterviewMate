@@ -9,16 +9,9 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
+
 import DateTimeDisplay from "./TimeConverter";
+import { DrawerComp } from "./Drawer";
 interface PartialDetialEl {
 	description: string;
 	meetingId: string;
@@ -32,7 +25,7 @@ export default function AnalysisCard({
 	partialDetails: PartialDetialEl;
 }) {
 	return (
-		<Card className="w-[350px] hover:scale-110 cursor-pointer">
+		<Card className="w-[350px]">
 			<CardHeader>
 				<CardTitle className="flex justify-between items-center">
 					<div>Meeting</div>
@@ -54,6 +47,9 @@ export default function AnalysisCard({
 					<>{partialDetails.description}</>
 				)}
 			</CardContent>
+			<div className="flex justify-center pb-4">
+				<DrawerComp meetingId={partialDetails.meetingId}></DrawerComp>
+			</div>
 		</Card>
 	);
 }

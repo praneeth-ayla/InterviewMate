@@ -4,6 +4,7 @@ const { createServer } = require("http")
 const cors = require("cors");
 const { default: axios } = require("axios");
 const { PrismaClient } = require("@prisma/client")
+require('dotenv').config();
 
 const prisma = new PrismaClient()
 
@@ -68,6 +69,31 @@ app.post("/partialD", async (req, res) => {
     });
 });
 
+app.post("/meetingD", async (req, res) => {
+    // Get the body from the request
+    const body = req.body;
+
+    // Extract userMail from the body
+    const meetingId = body.meetingRoomId; // Ensure this key matches the key used in your client-side code
+
+    if (!meetingId) {
+        // Handle missing 
+        return res.status(400).json({
+            mess: "Id is required"
+        });
+    }
+
+    const meetingDetails = await prisma.meetingRoom.findFirst({
+        where: {
+            meetingId
+        }
+    })
+
+    return res.json({
+        meetingDetails,
+        message: "success"
+    });
+});
 
 async function test(body) {
     const data = await axios.post("http://localhost:8000/", { body })
@@ -98,7 +124,7 @@ io.on("connection", (socket) => {
                     }
                 })
             } else {
-                const usersUL = existingMeetingRoom.users + "," + userMail
+                const usersUL = existingMeetingRoom.users + ", " + userMail
                 const updateUser = await prisma.meetingRoom.update({
                     where: {
                         meetingId: id
@@ -135,9 +161,7 @@ io.on("connection", (socket) => {
                     conversation: true
                 }
             });
-            console.log('=================convo====================')
-            console.log(convo)
-            console.log('=================convo====================')
+
         } catch (error) {
             console.log("Error:", error.message)
         }
@@ -163,6 +187,7 @@ io.on("connection", (socket) => {
             });
 
             const response = await axios.post("https://interviewmate.azurewebsites.net/new-questions", {
+                description: conversation.description,
                 conversations: conversation.conversation
             });
 
@@ -231,6 +256,7 @@ io.on("connection", (socket) => {
 
                 try {
                     const res = await axios.post("https://interviewmate.azurewebsites.net/analyze", {
+                        description: conversation.description,
                         conversations: conversation.conversation
                     });
                     // Emit only the data part of the response

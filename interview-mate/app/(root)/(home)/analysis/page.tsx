@@ -1,6 +1,7 @@
 "use client";
 
 import AnalysisCard from "@/components/AnalysisCard";
+import { DrawerComp } from "@/components/Drawer";
 import Loader from "@/components/Loader";
 import { useGetCalls } from "@/hooks/useGetCalls";
 import { useSendSpeech } from "@/hooks/useSendSpeech";
@@ -17,7 +18,7 @@ interface PartialDetialEl {
 	dateAndTime: string; // ISO 8601 date-time string
 }
 
-export default function page() {
+export default function Page() {
 	const { endedCalls, isLoading } = useGetCalls();
 	const router = useRouter();
 	const calls = endedCalls;
@@ -67,7 +68,9 @@ export default function page() {
 			) : (
 				<div className="grid gap-16 md:grid-cols-2 lg:grid-cols-3 ">
 					{partialDetails?.map((meeting) => (
-						<AnalysisCard partialDetails={meeting}></AnalysisCard>
+						<AnalysisCard
+							key={meeting.id}
+							partialDetails={meeting}></AnalysisCard>
 					))}
 				</div>
 			)}

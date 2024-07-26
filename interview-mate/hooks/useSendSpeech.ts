@@ -6,8 +6,8 @@ export function useSendSpeech() {
 	const [analysis, setAnalysis] = useState<any[]>([]);
 
 	useEffect(() => {
-		// const newSocket = io("https://interviewmate-atie.onrender.com/");
-		const newSocket = io("http://localhost:8000");
+		const newSocket = io("https://interviewmate-atie.onrender.com/");
+		// const newSocket = io("http://localhost:8000");
 		setSocket(newSocket);
 	}, []);
 
