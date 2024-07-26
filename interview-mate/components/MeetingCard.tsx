@@ -8,6 +8,7 @@ import { avatarImages } from "@/constants";
 import { useToast } from "./ui/use-toast";
 
 interface MeetingCardProps {
+	id: string;
 	title: string;
 	date: string;
 	icon: string;
@@ -19,6 +20,7 @@ interface MeetingCardProps {
 }
 
 const MeetingCard = ({
+	id,
 	icon,
 	title,
 	date,
@@ -45,6 +47,7 @@ const MeetingCard = ({
 						<p className="text-base font-normal">{date}</p>
 					</div>
 				</div>
+				<div>{id}</div>
 			</article>
 			<article className={cn("flex justify-center relative", {})}>
 				<div className="relative flex w-full max-sm:hidden">

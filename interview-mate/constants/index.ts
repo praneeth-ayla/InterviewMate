@@ -12,6 +12,11 @@ export const sidebarLinks = [
 	},
 	{
 		imgURL: "/icons/previous.svg",
+		route: "/analysis",
+		label: "Analytics",
+	},
+	{
+		imgURL: "/icons/previous.svg",
 		route: "/previous",
 		label: "Previous",
 	},

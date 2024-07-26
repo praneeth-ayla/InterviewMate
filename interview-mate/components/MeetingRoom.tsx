@@ -3,13 +3,12 @@ import { useEffect, useState } from "react";
 import {
 	CallControls,
 	CallParticipantsList,
-	CallStatsButton,
 	CallingState,
 	PaginatedGridLayout,
 	SpeakerLayout,
 	useCallStateHooks,
 } from "@stream-io/video-react-sdk";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Users, LayoutList } from "lucide-react";
 
 import {
@@ -21,10 +20,10 @@ import {
 } from "./ui/dropdown-menu";
 import Loader from "./Loader";
 import EndCallButton, { isMeetingOwner } from "./EndCallButton";
-import { cn } from "@/lib/utils";
 import useSpeechRecognition from "@/hooks/useSpeechRecognition";
 
 import { useSendSpeech } from "@/hooks/useSendSpeech";
+import QuestionsDropdown from "./QuestionsDropdown";
 
 type CallLayoutType = "grid" | "speaker-left" | "speaker-right";
 
@@ -36,7 +35,9 @@ const MeetingRoom = () => {
 	const [showParticipants, setShowParticipants] = useState(false);
 	const { useCallCallingState, useMicrophoneState } = useCallStateHooks();
 	const { isMute } = useMicrophoneState();
-	const { sendWS } = useSendSpeech();
+	const { sendWS, needQuestions } = useSendSpeech();
+	const meetingRoomId = usePathname();
+	const [questions, setQuestions] = useState<any>();
 
 	const role = isMeetingOwner ? "interviewer" : "inteviewee";
 
@@ -55,7 +56,7 @@ const MeetingRoom = () => {
 			if (!isListening) {
 				startListening();
 				if (text !== "") {
-					sendWS({ text, role });
+					sendWS({ text, role, meetingRoomId });
 					console.log({ text, role });
 				}
 			}
@@ -95,9 +96,9 @@ const MeetingRoom = () => {
 					<CallLayout />
 				</div>
 				<div
-					className={cn("h-[calc(100vh-86px)] hidden ml-2", {
-						"show-block": showParticipants,
-					})}>
+					className={`h-[calc(100vh-86px)] ${
+						showParticipants ? "" : "hidden"
+					} ml-2 `}>
 					<CallParticipantsList
 						onClose={() => setShowParticipants(false)}
 					/>
@@ -106,7 +107,6 @@ const MeetingRoom = () => {
 			{/* video layout and call controls */}
 			<div className="fixed bottom-0 flex w-full items-center justify-center gap-5">
 				<CallControls onLeave={() => router.push(`/`)} />
-				{/* <div>message is: {text}</div> */}
 				<DropdownMenu>
 					<div className="flex items-center">
 						<DropdownMenuTrigger className="cursor-pointer rounded-2xl bg-black px-4 py-2 hover:bg-[#4c535b]">
@@ -134,7 +134,10 @@ const MeetingRoom = () => {
 						)}
 					</DropdownMenuContent>
 				</DropdownMenu>
-				<CallStatsButton />
+				{!isPersonalRoom && isMeetingOwner && (
+					<QuestionsDropdown
+						meetingRoomId={meetingRoomId}></QuestionsDropdown>
+				)}
 				<button onClick={() => setShowParticipants((prev) => !prev)}>
 					<div className="cursor-pointer rounded-2xl bg-[#19232d] px-4 py-2 hover:bg-[#4c535b]">
 						<Users
