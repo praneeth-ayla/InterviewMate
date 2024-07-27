@@ -45,6 +45,7 @@ export function DrawerComp({ meetingId }: { meetingId: string }) {
 		null
 	);
 	const [analysis, setAnalysis] = React.useState<AnalysisResult | null>(null);
+	const meetingType = meetingId.includes("meeting");
 
 	const getAnalysis = async (roomId: string) => {
 		setIsLoading(true);
@@ -102,6 +103,7 @@ export function DrawerComp({ meetingId }: { meetingId: string }) {
 		<Drawer>
 			<DrawerTrigger asChild>
 				<Button
+					className="text-xl p-5"
 					variant="outline"
 					onClick={() => {
 						getAnalysis(meetingId);
@@ -115,7 +117,11 @@ export function DrawerComp({ meetingId }: { meetingId: string }) {
 						<>
 							<DrawerHeader>
 								<DrawerTitle className="flex justify-between items-center">
-									<div className="text-3xl">Meeting</div>
+									<div className="text-3xl">
+										{meetingType
+											? "Meeting"
+											: "Mock Interview"}
+									</div>
 									<div className="font-light">
 										{meetingDetails?.dateAndTime &&
 											DateTimeDisplay(

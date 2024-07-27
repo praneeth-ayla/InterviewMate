@@ -10,7 +10,7 @@ import {
 import Alert from "./Alert";
 import { Button } from "./ui/button";
 import { useSendSpeech } from "@/hooks/useSendSpeech";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 
 const MeetingSetup = ({
@@ -26,7 +26,8 @@ const MeetingSetup = ({
 		callStartsAt && new Date(callStartsAt) > new Date();
 	const callHasEnded = !!callEndedAt;
 	const meetingId = usePathname();
-	console.log(meetingId);
+	const searchParams = useSearchParams();
+	const isPersonalRoom = !!searchParams.get("personal");
 
 	const { user } = useUser();
 	function getUserMail() {
@@ -96,7 +97,9 @@ const MeetingSetup = ({
 				className="rounded-md bg-green-500 px-4 py-2.5"
 				onClick={() => {
 					call.join();
-					joinRoom(meetingId, getUserMail());
+					{
+						!isPersonalRoom && joinRoom(meetingId, getUserMail());
+					}
 					setIsSetupComplete(true);
 				}}>
 				Join meeting

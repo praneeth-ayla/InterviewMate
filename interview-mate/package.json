@@ -22,6 +22,7 @@
     "@stream-io/node-sdk": "^0.3.0",
     "@stream-io/video-react-sdk": "^1.2.15",
     "@types/dom-speech-recognition": "^0.0.4",
+    "@types/uuid": "^10.0.0",
     "axios": "^1.7.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
@@ -33,6 +34,7 @@
     "socket.io-client": "^4.7.5",
     "tailwind-merge": "^2.4.0",
     "tailwindcss-animate": "^1.0.7",
+    "uuid": "^10.0.0",
     "vaul": "^0.9.1"
   },
   "devDependencies": {

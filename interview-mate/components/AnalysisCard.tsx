@@ -24,32 +24,38 @@ export default function AnalysisCard({
 }: {
 	partialDetails: PartialDetialEl;
 }) {
+	const meetingType = partialDetails.meetingId.includes("meeting");
+
 	return (
-		<Card className="w-[350px]">
+		<Card className="min-h-[258px]">
 			<CardHeader>
 				<CardTitle className="flex justify-between items-center">
-					<div>Meeting</div>
-					<div className="text-sm font-light">
+					<div className="text-2xl">
+						{meetingType ? "Meeting" : "Mock Interview"}
+					</div>
+					<div className="font-light">
 						{DateTimeDisplay(partialDetails.dateAndTime).slice(
 							0,
 							17
 						)}
 					</div>
 				</CardTitle>
-				<CardDescription>
-					{partialDetails.meetingId.slice(9)}
+				<CardDescription className="text-xl">
+					{meetingType
+						? partialDetails.meetingId.slice(9)
+						: partialDetails.meetingId.slice(16)}
 				</CardDescription>
 			</CardHeader>
-			<CardContent>
+			<CardContent className="text-xl h-24">
 				{partialDetails.description.length > 150 ? (
 					<>{partialDetails.description.slice(0, 150)}...</>
 				) : (
 					<>{partialDetails.description}</>
 				)}
 			</CardContent>
-			<div className="flex justify-center pb-4">
+			<CardFooter className="flex justify-center">
 				<DrawerComp meetingId={partialDetails.meetingId}></DrawerComp>
-			</div>
+			</CardFooter>
 		</Card>
 	);
 }

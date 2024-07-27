@@ -14,6 +14,7 @@ import ReactDatePicker from "react-datepicker";
 import { useToast } from "./ui/use-toast";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
+import { v4 } from "uuid";
 
 const initialValues = {
 	dateTime: new Date(),
@@ -27,6 +28,7 @@ const MeetingTypeList = () => {
 		| "isScheduleMeeting"
 		| "isJoiningMeeting"
 		| "isInstantMeeting"
+		| "isMockInterview"
 		| undefined
 	>(undefined);
 	const [values, setValues] = useState(initialValues);
@@ -87,10 +89,14 @@ const MeetingTypeList = () => {
 
 					const data = await response.json();
 				} catch (error) {}
+				toast({
+					title: "Meeting Created",
+				});
+			} else {
+				toast({
+					title: "Need Description",
+				});
 			}
-			toast({
-				title: "Meeting Created",
-			});
 		} catch (error) {
 			console.error(error);
 			toast({ title: "Failed to create Meeting" });
@@ -100,6 +106,56 @@ const MeetingTypeList = () => {
 	if (!client || !user) return <Loader />;
 
 	const meetingLink = `${process.env.NEXT_PUBLIC_BASE_URL}/meeting/${callDetail?.id}`;
+
+	// mock interview
+	async function handleMockInterview() {
+		if (values.description === "") {
+			toast({
+				title: "Need Description",
+			});
+		} else {
+			const id = v4();
+
+			try {
+				const response = await fetch(
+					// "http://localhost:8000/setDescription",
+					"https://interviewmate-atie.onrender.com/setDescription",
+					{
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify({
+							description: values.description,
+							meetingRoomId: `/mock-interview/${id}`,
+						}),
+					}
+				);
+				router.push(`mock-interview/${id}`);
+			} catch (error) {
+				console.log("Error:", error);
+				toast({
+					title: "Error creating Mock Interview",
+				});
+			}
+
+			fetch(
+				// "http://localhost:8000/setDescription",
+				"https://interviewmate-atie.onrender.com/setDescription",
+				{
+					method: "POST",
+					body: JSON.stringify({
+						description: values.description,
+						meetingRoomId: `/meeting/${id}`,
+					}),
+				}
+			);
+
+			toast({
+				title: "Mock Interview Created",
+			});
+		}
+	}
 
 	return (
 		<div>
@@ -123,6 +179,7 @@ const MeetingTypeList = () => {
 						description="Start an instant meeting"
 						handleClick={() => setMeetingState("isInstantMeeting")}
 					/>
+
 					<HomeCard
 						img="/icons/schedule.svg"
 						title="Schedule Meeting"
@@ -146,6 +203,13 @@ const MeetingTypeList = () => {
 						description="via invitation link"
 						className="bg-green-600"
 						handleClick={() => setMeetingState("isJoiningMeeting")}
+					/>
+					<HomeCard
+						img="/icons/add-meeting.svg"
+						title="Mock Interview"
+						className="bg-green-600"
+						description="Practice for Interview"
+						handleClick={() => setMeetingState("isMockInterview")}
 					/>
 				</section>
 			)}
@@ -230,7 +294,28 @@ const MeetingTypeList = () => {
 					<label className="text-base font-normal leading-[22.4px] text-sky-2">
 						Add a description
 					</label>
-					{values.description}
+					<Textarea
+						className="border bg-white dark:bg-black focus-visible:ring-0 focus-visible:ring-offset-0"
+						onChange={(e) =>
+							setValues({
+								...values,
+								description: e.target.value,
+							})
+						}
+					/>
+				</div>
+			</MeetingModal>
+			<MeetingModal
+				isOpen={meetingState === "isMockInterview"}
+				onClose={() => setMeetingState(undefined)}
+				title="Start an Mock Interview"
+				className="text-center"
+				buttonText="Start"
+				handleClick={handleMockInterview}>
+				<div className="flex flex-col gap-2.5">
+					<label className="text-base font-normal leading-[22.4px] text-sky-2">
+						Add a description
+					</label>
 					<Textarea
 						className="border bg-white dark:bg-black focus-visible:ring-0 focus-visible:ring-offset-0"
 						onChange={(e) =>

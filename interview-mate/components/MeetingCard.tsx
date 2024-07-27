@@ -33,7 +33,7 @@ const MeetingCard = ({
 	const { toast } = useToast();
 
 	return (
-		<section className="flex min-h-[258px] w-full flex-col justify-between rounded-[14px] dark:bg-slate-900 dark:text-white bg-gray-200 text-black px-5 py-8 xl:max-w-[568px]">
+		<section className="flex min-h-[258px] w-full text-foreground flex-col justify-between rounded-[14px] bg-card px-5 py-8 xl:max-w-[568px]">
 			<article className="flex flex-col gap-5">
 				<Image
 					src={icon}
@@ -49,30 +49,12 @@ const MeetingCard = ({
 				</div>
 				<div>{id}</div>
 			</article>
-			<article className={cn("flex justify-center relative", {})}>
-				<div className="relative flex w-full max-sm:hidden">
-					{avatarImages.map((img, index) => (
-						<Image
-							key={index}
-							src={img}
-							alt="attendees"
-							width={40}
-							height={40}
-							className={cn("rounded-full", {
-								absolute: index > 0,
-							})}
-							style={{ top: 0, left: index * 28 }}
-						/>
-					))}
-					<div className="flex justify-center items-center absolute left-[136px] size-10 rounded-full border-[5px] border-gray-700 text-black bg-white">
-						+5
-					</div>
-				</div>
+			<article className={cn("flex justify-end pt-3 relative", {})}>
 				{!isPreviousMeeting && (
 					<div className="flex gap-2">
 						<Button
 							onClick={handleClick}
-							className="rounded bg-primary px-6">
+							className="rounded px-6">
 							{buttonIcon1 && (
 								<Image
 									src={buttonIcon1}
@@ -90,7 +72,7 @@ const MeetingCard = ({
 									title: "Link Copied",
 								});
 							}}
-							className="bg-primary hover:bg-primary-foreground px-6">
+							className=" px-6">
 							<Image
 								src="/icons/copy.svg"
 								alt="feature"

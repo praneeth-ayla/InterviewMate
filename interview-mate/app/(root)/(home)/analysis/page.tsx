@@ -70,8 +70,15 @@ export default function Page() {
 			<h1 className="text-3xl font-bold">Meeting Analytics</h1>
 			{isLoading ? (
 				<Loader />
+			) : !isLoading && partialDetails?.length === 0 ? (
+				<div className="text-2xl font-bold">
+					No Interviews To Analyze
+				</div>
 			) : (
-				<div className="grid gap-16 md:grid-cols-2 lg:grid-cols-3 ">
+				<div
+					className="grid grid-cols-1 gap-5 xl:grid-cols-2"
+					// className="grid gap-16 md:grid-cols-2 lg:grid-cols-3 ">
+				>
 					{partialDetails?.map((meeting) => (
 						<AnalysisCard
 							key={meeting.id}
