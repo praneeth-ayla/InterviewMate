@@ -35,7 +35,7 @@ const MeetingTypeList = () => {
 	const { user } = useUser();
 	const { toast } = useToast();
 	let [mode, setMode] = useState<"interviewee" | "interviewer">(
-		"interviewee"
+		"interviewer"
 	);
 
 	const createMeeting = async () => {
@@ -51,7 +51,7 @@ const MeetingTypeList = () => {
 			const startsAt =
 				values.dateTime.toISOString() ||
 				new Date(Date.now()).toISOString();
-			const description = values.description || "Instant Meeting";
+			const description = values.description;
 			await call.getOrCreate({
 				data: {
 					starts_at: startsAt,
@@ -61,8 +61,32 @@ const MeetingTypeList = () => {
 				},
 			});
 			setCallDetail(call);
-			if (!values.description) {
+			if (values.description) {
 				router.push(`/meeting/${call.id}`);
+				try {
+					const response = await fetch(
+						// "http://localhost:8000/setDescription",
+						"https://interviewmate-atie.onrender.com/setDescription",
+						{
+							method: "POST",
+							headers: {
+								"Content-Type": "application/json",
+							},
+							body: JSON.stringify({
+								description,
+								meetingRoomId: `/meeting/${call.id}`,
+							}),
+						}
+					);
+
+					if (!response.ok) {
+						throw new Error(
+							`HTTP error! status: ${response.status}`
+						);
+					}
+
+					const data = await response.json();
+				} catch (error) {}
 			}
 			toast({
 				title: "Meeting Created",
@@ -95,7 +119,7 @@ const MeetingTypeList = () => {
 					<HomeCard
 						img="/icons/add-meeting.svg"
 						title="New Meeting"
-						className="bg-green-800"
+						className="bg-green-600"
 						description="Start an instant meeting"
 						handleClick={() => setMeetingState("isInstantMeeting")}
 					/>
@@ -103,14 +127,14 @@ const MeetingTypeList = () => {
 						img="/icons/schedule.svg"
 						title="Schedule Meeting"
 						description="Plan your meeting"
-						className="bg-green-700"
+						className="bg-green-600"
 						handleClick={() => setMeetingState("isScheduleMeeting")}
 					/>
 					<HomeCard
 						img="/icons/recordings.svg"
 						title="View Recordings"
 						description="Meeting Recordings"
-						className="bg-green-800"
+						className="bg-green-600"
 						handleClick={() => router.push("/recordings")}
 					/>
 				</section>
@@ -120,7 +144,7 @@ const MeetingTypeList = () => {
 						img="/icons/join-meeting.svg"
 						title="Join Meeting"
 						description="via invitation link"
-						className="bg-green-800"
+						className="bg-green-600"
 						handleClick={() => setMeetingState("isJoiningMeeting")}
 					/>
 				</section>
@@ -201,8 +225,23 @@ const MeetingTypeList = () => {
 				title="Start an Instant Meeting"
 				className="text-center"
 				buttonText="Start Meeting"
-				handleClick={createMeeting}
-			/>
+				handleClick={createMeeting}>
+				<div className="flex flex-col gap-2.5">
+					<label className="text-base font-normal leading-[22.4px] text-sky-2">
+						Add a description
+					</label>
+					{values.description}
+					<Textarea
+						className="border bg-white dark:bg-black focus-visible:ring-0 focus-visible:ring-offset-0"
+						onChange={(e) =>
+							setValues({
+								...values,
+								description: e.target.value,
+							})
+						}
+					/>
+				</div>
+			</MeetingModal>
 		</div>
 	);
 };

@@ -15,7 +15,7 @@ import { useSendSpeech } from "@/hooks/useSendSpeech";
 import Image from "next/image";
 import DateTimeDisplay from "./TimeConverter";
 import { RatingBar } from "./RatingBar";
-import { DropdownMenuSeparator } from "./ui/dropdown-menu";
+import { Badge } from "./ui/badge";
 
 interface Meeting {
 	id: number;
@@ -68,6 +68,32 @@ export function DrawerComp({ meetingId }: { meetingId: string }) {
 		}
 	};
 
+	function extractEmails(emailString: string): string[] {
+		// Regular expression pattern for matching email addresses
+		const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+
+		// Find all matches in the input string
+		const emails: RegExpMatchArray | null = emailString.match(emailPattern);
+
+		// Create an array to hold unique emails
+		const uniqueEmails: string[] = [];
+
+		if (emails) {
+			for (const email of emails) {
+				// Only add unique emails
+				if (!uniqueEmails.includes(email)) {
+					uniqueEmails.push(email);
+				}
+			}
+		}
+
+		return uniqueEmails;
+	}
+
+	if (meetingDetails?.users) {
+		console.log(extractEmails(meetingDetails?.users));
+	}
+
 	React.useEffect(() => {
 		getAnalysis(meetingId);
 	}, [meetingId]); // Fetch data when meetingId changes
@@ -101,7 +127,21 @@ export function DrawerComp({ meetingId }: { meetingId: string }) {
 									Id: {meetingId.slice(9)}
 									<div className="pt-2">
 										Participants:
-										<div>{meetingDetails?.users}</div>
+										<div>
+											{meetingDetails?.users && (
+												<div className="flex gap-3">
+													{extractEmails(
+														meetingDetails.users
+													).map((user, id) => (
+														<Badge
+															variant="secondary"
+															key={id}>
+															{user}
+														</Badge>
+													))}
+												</div>
+											)}
+										</div>
 									</div>
 									<div className="text-lg">
 										<div className="pt-3  font-bold text-secondary-foreground">

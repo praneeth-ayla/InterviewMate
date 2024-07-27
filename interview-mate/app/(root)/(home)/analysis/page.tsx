@@ -7,6 +7,7 @@ import { useGetCalls } from "@/hooks/useGetCalls";
 import { useSendSpeech } from "@/hooks/useSendSpeech";
 import { useUser } from "@clerk/nextjs";
 import { Call, CallRecording } from "@stream-io/video-react-sdk";
+import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -36,13 +37,17 @@ export default function Page() {
 		const userMail = getUserMail();
 
 		try {
-			const response = await fetch("http://localhost:8000/partialD", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({ email: userMail }),
-			});
+			const response = await fetch(
+				`https://interviewmate-atie.onrender.com/partialD`,
+				{
+					// const response = await fetch("http://localhost:8000/partialD", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ email: userMail }),
+				}
+			);
 
 			if (!response.ok) {
 				throw new Error(`HTTP error! status: ${response.status}`);

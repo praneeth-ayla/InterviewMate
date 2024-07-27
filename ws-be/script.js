@@ -95,6 +95,35 @@ app.post("/meetingD", async (req, res) => {
     });
 });
 
+app.post("/setDescription", async (req, res) => {
+    // Get the body from the request
+    const body = req.body;
+
+    // Extract userMail from the body
+    const meetingId = body.meetingRoomId; // Ensure this key matches the key used in your client-side code
+    const description = body.description;
+    console.log("''''''''test''''''''''''''''''")
+    console.log(meetingId, description)
+    console.log("''''''''test''''''''''''''''''")
+    try {
+        const response = await prisma.meetingRoom.create({
+            data: {
+                meetingId, description
+            }
+        })
+
+
+        console.log("''''''''test''''''''''''''''''")
+        console.log(response)
+        console.log("''''''''test''''''''''''''''''")
+
+        return res.json(response)
+    } catch (error) {
+        // console.log("Error:", error)
+        return res.json(error)
+    }
+})
+
 async function test(body) {
     const data = await axios.post("http://localhost:8000/", { body })
     return data
