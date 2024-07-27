@@ -11,7 +11,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-interface PartialDetialEl {
+export interface PartialDetialEl {
 	description: string;
 	meetingId: string;
 	id: number;
