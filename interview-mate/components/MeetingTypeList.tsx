@@ -15,6 +15,7 @@ import { useToast } from "./ui/use-toast";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { v4 } from "uuid";
+import { useSendSpeech } from "@/hooks/useSendSpeech";
 
 const initialValues = {
 	dateTime: new Date(),
@@ -39,6 +40,8 @@ const MeetingTypeList = () => {
 	let [mode, setMode] = useState<"interviewee" | "interviewer">(
 		"interviewer"
 	);
+
+	const { joinRoom } = useSendSpeech();
 
 	const createMeeting = async () => {
 		if (!client || !user) return;
@@ -108,6 +111,12 @@ const MeetingTypeList = () => {
 	const meetingLink = `${process.env.NEXT_PUBLIC_BASE_URL}/meeting/${callDetail?.id}`;
 
 	// mock interview
+	function getUserMail() {
+		if (user?.emailAddresses[0]?.emailAddress) {
+			return user.emailAddresses[0].emailAddress;
+		}
+		return "";
+	}
 	async function handleMockInterview() {
 		if (values.description === "") {
 			toast({
@@ -115,6 +124,7 @@ const MeetingTypeList = () => {
 			});
 		} else {
 			const id = v4();
+			const mockId = `/mock-interview/${id}`;
 
 			try {
 				const response = await fetch(
@@ -127,11 +137,13 @@ const MeetingTypeList = () => {
 						},
 						body: JSON.stringify({
 							description: values.description,
-							meetingRoomId: `/mock-interview/${id}`,
+							meetingRoomId: mockId,
 						}),
 					}
 				);
-				router.push(`mock-interview/${id}`);
+				router.push(mockId);
+
+				joinRoom(mockId, getUserMail());
 			} catch (error) {
 				console.log("Error:", error);
 				toast({

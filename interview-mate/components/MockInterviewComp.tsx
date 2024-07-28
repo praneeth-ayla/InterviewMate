@@ -1,62 +1,32 @@
 "use client";
 import { useSendSpeech } from "@/hooks/useSendSpeech";
 import { useUser } from "@clerk/nextjs";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import QuestionsDropdown from "./QuestionsDropdown";
 import { Button } from "./ui/button";
 import PreviousQuestions from "./PreviousQuestions";
 import Image from "next/image";
+import useSpeechRecognition from "@/hooks/UseSpeechMock";
 
 export default function MockInterviewComp() {
 	const mockId = usePathname();
-	const { joinRoom } = useSendSpeech();
-	const { user } = useUser();
 	const [mockDetails, setMockDetails] = useState<any>();
 	const [questions, setQuestions] = useState<string[]>([]); // Use an array
 	const { needQuestions } = useSendSpeech();
 	const [loading, setLoading] = useState(false);
 	const [previousQuestions, setPreviousQuestions] = useState<string[]>([]); // Use an array
 	const [count, setCount] = useState(0);
+	const router = useRouter();
+	const [isMuted, setIsMuted] = useState(false);
 
-	function getUserMail() {
-		if (user?.emailAddresses[0]?.emailAddress) {
-			return user.emailAddresses[0].emailAddress;
-		}
-		return "";
-	}
-
-	async function getMockDetails() {
-		try {
-			const response = await fetch(
-				`https://interviewmate-atie.onrender.com/meetingD`,
-				{
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({ meetingRoomId: mockId }),
-				}
-			);
-
-			if (!response.ok) {
-				throw new Error(`HTTP error! status: ${response.status}`);
-			}
-
-			const data = await response.json();
-			setMockDetails(data.meetingDetails);
-			console.log(data);
-		} catch (error) {
-			console.error("Fetch error:", error);
-		}
-	}
-
-	useEffect(() => {
-		joinRoom(mockId, getUserMail());
-		getMockDetails();
-	}, []);
+	const { isListening, startListening, text, setText } =
+		useSpeechRecognition(isMuted);
+	const { sendWS } = useSendSpeech();
 
 	function handleWhenEmpty() {
+		startListening();
+		console.warn("started listening");
 		setLoading(true);
 		needQuestions(mockId, "empty")
 			.then((questions) => {
@@ -86,6 +56,18 @@ export default function MockInterviewComp() {
 	}
 
 	function handleNext() {
+		setIsMuted((prev) => !prev);
+		setIsMuted((prev) => !prev);
+
+		sendWS({
+			text: questions[count],
+			role: "interviwer",
+			meetingRoomId: mockId,
+		});
+		setTimeout(() => {
+			sendWS({ text, role: "interviwee", meetingRoomId: mockId });
+		}, 1000);
+		setText("");
 		if (count === 4) {
 			handleQuestionReq();
 		} else {
@@ -94,8 +76,17 @@ export default function MockInterviewComp() {
 		}
 		setPreviousQuestions((prev) => [...prev, questions[count]]);
 	}
+
+	useEffect(() => {
+		if (text !== "") {
+			setInterval(() => {
+				startListening();
+			}, 100);
+		}
+	}, []);
+
 	return (
-		<div className="pt-16 px-10 sm:px-20 md:px-40 lg:px-60 flex flex-col justify-between h-screen">
+		<div className="pt-20 px-10 sm:px-20 md:px-40 lg:px-20 xl:px-60 flex flex-col justify-between h-screen">
 			<div>
 				<div className="text-4xl font-bold pb-1">Mock Interview</div>
 				<div>
@@ -139,7 +130,6 @@ export default function MockInterviewComp() {
 									? handleWhenEmpty()
 									: handleNext();
 							}
-							console.log(questions);
 						}}>
 						{!loading ? (
 							<>
@@ -159,10 +149,11 @@ export default function MockInterviewComp() {
 				</div>
 			</div>
 			<div className="flex justify-center mb-4 space-x-4">
-				<Button className="bg-blue-500 text-white px-4 py-2">
-					Mute
-				</Button>
-				<Button className="bg-red-500 text-white px-4 py-2 ">
+				<Button
+					className="bg-red-500 text-white px-4 py-2"
+					onClick={() => {
+						router.push("/");
+					}}>
 					End Interview
 				</Button>
 			</div>
