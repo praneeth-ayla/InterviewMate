@@ -32,7 +32,7 @@ const MobileNav = () => {
 					side="left"
 					className="border-none bg-dark-1">
 					<Link
-						href="/"
+						href="/home"
 						className="flex items-center gap-1">
 						<Image
 							src="/icons/logo.svg"

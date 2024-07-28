@@ -9,7 +9,7 @@ const Navbar = () => {
 	return (
 		<nav className=" flex  justify-between  fixed z-50 w-full bg-white dark:bg-black border-b  px-6 py-4 lg:px-10">
 			<Link
-				href="/"
+				href="/home"
 				className="flex items-center gap-1">
 				<Image
 					src="/icons/logo.svg"
