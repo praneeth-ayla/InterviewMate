@@ -10,6 +10,11 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
 	title: "Interview Mate",
 	description: "With you before, during and after interview",
+	icons: {
+		icon: ["/favicon.ico"],
+		apple: ["/apple-touch-icon.png?v=4"],
+		shortcut: ["/apple-touch-icon"],
+	},
 };
 import "@stream-io/video-react-sdk/dist/css/styles.css";
 import "react-datepicker/dist/react-datepicker.css";
@@ -29,7 +34,7 @@ export default function RootLayout({
 						colorPrimary: "#00a658",
 					},
 				}}>
-				<body className={`${inter.className} `}>
+				<body className={`${inter.className}`}>
 					<ThemeProvider
 						attribute="class"
 						defaultTheme="dark"

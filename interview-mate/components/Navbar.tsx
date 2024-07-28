@@ -19,7 +19,7 @@ const Navbar = () => {
 					className="max-sm:size-10"
 				/>
 				<p className="text-[26px] font-extrabold  max-sm:hidden">
-					INTERVIEW MATE
+					Interview Mate
 				</p>
 			</Link>
 			<div className="flex justify-between gap-5">

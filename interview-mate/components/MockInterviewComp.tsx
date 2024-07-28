@@ -20,8 +20,14 @@ export default function MockInterviewComp() {
 	const router = useRouter();
 	const [isMuted, setIsMuted] = useState(false);
 
-	const { isListening, startListening, text, setText } =
-		useSpeechRecognition(isMuted);
+	const {
+		hasRecognitionSupport,
+		isListening,
+		startListening,
+		stopListening,
+		text,
+		setText,
+	} = useSpeechRecognition(isMuted);
 	const { sendWS } = useSendSpeech();
 
 	function handleWhenEmpty() {
@@ -78,6 +84,9 @@ export default function MockInterviewComp() {
 	}
 
 	useEffect(() => {
+		if (!hasRecognitionSupport) {
+			alert("Speech recognition is not supported in this browser.");
+		}
 		if (text !== "") {
 			setInterval(() => {
 				startListening();
@@ -148,11 +157,12 @@ export default function MockInterviewComp() {
 					</Button>
 				</div>
 			</div>
-			<div className="flex justify-center mb-4 space-x-4">
+			<div className="flex justify-center mt-10 pb-3 space-x-4">
 				<Button
 					className="bg-red-500 text-white px-4 py-2"
 					onClick={() => {
 						router.push("/");
+						stopListening();
 					}}>
 					End Interview
 				</Button>

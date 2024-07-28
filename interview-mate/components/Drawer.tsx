@@ -91,10 +91,6 @@ export function DrawerComp({ meetingId }: { meetingId: string }) {
 		return uniqueEmails;
 	}
 
-	if (meetingDetails?.users) {
-		console.log(extractEmails(meetingDetails?.users));
-	}
-
 	React.useEffect(() => {
 		getAnalysis(meetingId);
 	}, [meetingId]); // Fetch data when meetingId changes

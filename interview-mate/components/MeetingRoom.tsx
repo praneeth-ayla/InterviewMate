@@ -57,7 +57,6 @@ const MeetingRoom = () => {
 				startListening();
 				if (text !== "") {
 					sendWS({ text, role, meetingRoomId });
-					console.log({ text, role });
 				}
 			}
 		}
@@ -65,9 +64,7 @@ const MeetingRoom = () => {
 
 	useEffect(() => {
 		if (!hasRecognitionSupport) {
-			console.warn(
-				"Speech recognition is not supported in this browser."
-			);
+			alert("Speech recognition is not supported in this browser.");
 		}
 		return () => {
 			if (isListening) {
