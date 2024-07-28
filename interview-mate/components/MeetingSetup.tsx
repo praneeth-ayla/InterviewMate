@@ -68,10 +68,12 @@ const MeetingSetup = ({
 
 	if (callHasEnded)
 		return (
-			<Alert
-				title="The call has been ended by the host"
-				iconUrl="/icons/call-ended.svg"
-			/>
+			<div className="flex justify-center items-center">
+				<Alert
+					title="The call has been ended by the host"
+					iconUrl="/icons/logo.svg"
+				/>
+			</div>
 		);
 
 	return (

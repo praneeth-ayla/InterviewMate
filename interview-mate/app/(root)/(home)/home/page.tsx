@@ -3,10 +3,14 @@ import MeetingTypeList from "@/components/MeetingTypeList";
 const Home = () => {
 	const now = new Date();
 
+	// Get the time in the user's local timezone
 	const time = now.toLocaleTimeString("en-US", {
 		hour: "2-digit",
 		minute: "2-digit",
+		hour12: true, // Optional: Set to false for 24-hour format
 	});
+
+	// Get the full date in the user's local timezone
 	const date = new Intl.DateTimeFormat("en-US", { dateStyle: "full" }).format(
 		now
 	);

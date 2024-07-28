@@ -11,8 +11,8 @@ interface PermissionCardProps {
 
 const Alert = ({ title, iconUrl }: PermissionCardProps) => {
 	return (
-		<section className="flex-center h-screen w-full">
-			<Card className="w-full max-w-[520px] border-none bg-dark-1 p-6 py-9 text-white">
+		<section className="flex justify-center items-center h-screen w-full ">
+			<Card className="w-full max-w-[520px] border-none bg-dark-1 p-6 py-9 ">
 				<CardContent>
 					<div className="flex flex-col gap-9">
 						<div className="flex flex-col gap-3.5">
@@ -33,7 +33,7 @@ const Alert = ({ title, iconUrl }: PermissionCardProps) => {
 
 						<Button
 							asChild
-							className="bg-blue-1">
+							className="">
 							<Link href="/home">Back to Home</Link>
 						</Button>
 					</div>
