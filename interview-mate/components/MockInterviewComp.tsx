@@ -1,9 +1,7 @@
 "use client";
 import { useSendSpeech } from "@/hooks/useSendSpeech";
-import { useUser } from "@clerk/nextjs";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import QuestionsDropdown from "./QuestionsDropdown";
 import { Button } from "./ui/button";
 import PreviousQuestions from "./PreviousQuestions";
 import Image from "next/image";
